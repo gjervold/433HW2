@@ -97,19 +97,48 @@ multiple dyplr operations, all on one line, concluding with
 `ggplot(aes(x= ,y=)) + geom_point()`
 
 ``` r
+# number of cancelled per day
+cancelled_per_day <- flights %>%
+  mutate(cancelled = (is.na(arr_delay) | is.na(dep_delay))) %>%
+  group_by(year, month, day) %>%
+  summarise(
+    cancelled_num = sum(cancelled),
+    flights_num = n(),
+  )
+```
+
+    ## `summarise()` regrouping output by 'year', 'month' (override with `.groups` argument)
+
+``` r
+ggplot(cancelled_per_day) +
+  geom_point(aes(x = flights_num, y = cancelled_num)) 
+```
+
+![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+``` r
+# proportion of cancelled vs delay
 flights %>%
-  mutate(dep_date = lubridate::make_datetime(year, month, day)) %>%
-  group_by(dep_date) %>%
-  summarise(cancelled = sum(is.na(dep_delay)), 
+  mutate(cancelled = (is.na(arr_delay) | is.na(dep_delay))) %>%
+  group_by(year, month, day) %>%
+  summarise(num_cancelled = sum(cancelled), 
             n = n(),
             mean_dep_delay = mean(dep_delay,na.rm=TRUE),
             mean_arr_delay = mean(arr_delay,na.rm=TRUE)) %>%
-    ggplot(aes(x= cancelled/n)) + 
-    geom_point(aes(y=mean_dep_delay), colour='blue', alpha=0.5) + 
-    geom_point(aes(y=mean_arr_delay), colour='red', alpha=0.5) + 
+    ggplot(aes(x= num_cancelled/n)) + 
+    geom_point(aes(y=mean_dep_delay), colour='green', alpha=0.5) + 
+    geom_point(aes(y=mean_arr_delay), colour='purple', alpha=0.5) + 
     ylab('mean delay (minutes)')
 ```
 
-    ## `summarise()` ungrouping output (override with `.groups` argument)
+    ## `summarise()` regrouping output by 'year', 'month' (override with `.groups` argument)
 
-![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-3-2.png)<!-- --> From the
+first figure, we see that as the number of flights per day increases, so
+does the number of cancellations.  
+From the second figure, we can see that the proportion of cancelled
+flights (num\_cancelled/n) *is* related to the average delay.
+Specifically, the more cancelled flights there are, the higher the
+average delay is. My suspicion is that this is due to weather
+conditions. If flights are being cancelled, then there are also going to
+be delays if it is due to weather.
