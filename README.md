@@ -65,3 +65,33 @@ Currently dep\_time and sched\_dep\_time are convenient to look at, but
 hard to compute with because they’re not really continuous numbers.
 Convert them to a more convenient representation of number of minutes
 since midnight.
+
+``` r
+mutate(flights,
+       dep_time = (dep_time %/% 100) * 60 + (dep_time %% 100),
+       sched_dep_time = (sched_dep_time %/% 100) * 60 + (sched_dep_time %% 100))
+```
+
+    ## # A tibble: 336,776 x 19
+    ##     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+    ##    <int> <int> <int>    <dbl>          <dbl>     <dbl>    <int>          <int>
+    ##  1  2013     1     1      317            315         2      830            819
+    ##  2  2013     1     1      333            329         4      850            830
+    ##  3  2013     1     1      342            340         2      923            850
+    ##  4  2013     1     1      344            345        -1     1004           1022
+    ##  5  2013     1     1      354            360        -6      812            837
+    ##  6  2013     1     1      354            358        -4      740            728
+    ##  7  2013     1     1      355            360        -5      913            854
+    ##  8  2013     1     1      357            360        -3      709            723
+    ##  9  2013     1     1      357            360        -3      838            846
+    ## 10  2013     1     1      358            360        -2      753            745
+    ## # ... with 336,766 more rows, and 11 more variables: arr_delay <dbl>,
+    ## #   carrier <chr>, flight <int>, tailnum <chr>, origin <chr>, dest <chr>,
+    ## #   air_time <dbl>, distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>
+
+## 3\.
+
+Look at the number of canceled flights per day. Is there a pattern? Is
+the proportion of canceled flights related to the average delay? Use
+multiple dyplr operations, all on one line, concluding with
+`ggplot(aes(x= ,y=)) + geom_point()`
