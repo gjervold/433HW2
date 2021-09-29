@@ -5,7 +5,7 @@ Alyssa Gjervold
 
 ## 1\.
 
-How many flights have a missing dep\_time? What other variables are
+How many flights have a missing `dep_time`? What other variables are
 missing? What might these rows represent?
 
 ``` r
@@ -61,7 +61,7 @@ cancelled, or didn’t arrive for some reason (crash, etc.).
 
 ## 2\.
 
-Currently dep\_time and sched\_dep\_time are convenient to look at, but
+Currently `dep_time` and `sched_dep_time` are convenient to look at, but
 hard to compute with because they’re not really continuous numbers.
 Convert them to a more convenient representation of number of minutes
 since midnight.
@@ -95,3 +95,21 @@ Look at the number of canceled flights per day. Is there a pattern? Is
 the proportion of canceled flights related to the average delay? Use
 multiple dyplr operations, all on one line, concluding with
 `ggplot(aes(x= ,y=)) + geom_point()`
+
+``` r
+flights %>%
+  mutate(dep_date = lubridate::make_datetime(year, month, day)) %>%
+  group_by(dep_date) %>%
+  summarise(cancelled = sum(is.na(dep_delay)), 
+            n = n(),
+            mean_dep_delay = mean(dep_delay,na.rm=TRUE),
+            mean_arr_delay = mean(arr_delay,na.rm=TRUE)) %>%
+    ggplot(aes(x= cancelled/n)) + 
+    geom_point(aes(y=mean_dep_delay), colour='blue', alpha=0.5) + 
+    geom_point(aes(y=mean_arr_delay), colour='red', alpha=0.5) + 
+    ylab('mean delay (minutes)')
+```
+
+    ## `summarise()` ungrouping output (override with `.groups` argument)
+
+![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
